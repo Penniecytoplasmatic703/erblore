@@ -1,5 +1,6 @@
 package org.booklore.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.CustomFontDto;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +20,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
+@Slf4j
 @Tag(name = "Custom Fonts", description = "Endpoints for managing custom fonts for EPUB reader")
 @RestController
 @RequestMapping("/api/v1/custom-fonts")
@@ -72,8 +77,17 @@ public class CustomFontController {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Resource resource = customFontService.getFontFile(fontId, user.getId());
         FontFormat format = customFontService.getFontFormat(fontId, user.getId());
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(format.getMimeType()))
+
+        ResponseEntity.BodyBuilder builder = ResponseEntity.ok();
+
+        try {
+            builder.lastModified(resource.lastModified())
+                    .cacheControl(CacheControl.maxAge(Duration.ofMinutes(5)).cachePrivate());
+        } catch (IOException e) {
+            log.error("Cannot get last modified of font file: {}", e.getMessage());
+        }
+
+        return builder.contentType(MediaType.parseMediaType(format.getMimeType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
                 .body(resource);
     }

@@ -101,6 +101,10 @@ public class VersionService {
         return updates;
     }
 
+    public boolean isDevelopment() {
+        return "development".equals(appVersion);
+    }
+
     private boolean isVersionGreater(String version1, String version2) {
         try {
             String[] v1 = version1.replace("v", "").split("\\.");

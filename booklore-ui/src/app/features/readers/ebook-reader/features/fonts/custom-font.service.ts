@@ -3,12 +3,14 @@ import {CustomFontService} from '../../../../../shared/service/custom-font.servi
 import {CustomFont} from '../../../../../shared/model/custom-font.model';
 import {Observable, forkJoin, of, from} from 'rxjs';
 import {map, switchMap, tap, catchError} from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EpubCustomFontService {
   private customFontService = inject(CustomFontService);
+  private http = inject(HttpClient);
 
   private customFonts: CustomFont[] = [];
   private customFontBlobUrls = new Map<number, string>();
@@ -42,11 +44,9 @@ export class EpubCustomFontService {
 
   private cacheSingleFont(font: CustomFont): Observable<void> {
     const fontUrl = this.customFontService.getFontUrl(font.id);
-    const fontUrlWithToken = this.customFontService.appendToken(fontUrl);
 
-    return from(fetch(fontUrlWithToken)).pipe(
-      switchMap(response => from(response.blob())),
-      tap(blob => {
+    return this.http.get(fontUrl, { responseType: "blob" }).pipe(
+      tap((blob) => {
         const blobUrl = URL.createObjectURL(blob);
         this.customFontBlobUrls.set(font.id, blobUrl);
       }),

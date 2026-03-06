@@ -15,6 +15,7 @@ import org.booklore.model.enums.ProvisioningMethod;
 import org.booklore.model.enums.UserPermission;
 import org.booklore.repository.RefreshTokenRepository;
 import org.booklore.repository.UserRepository;
+import org.booklore.service.VersionService;
 import org.booklore.service.user.DefaultSettingInitializer;
 import org.booklore.service.user.UserProvisioningService;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,7 @@ public class AuthenticationService {
     private final DefaultSettingInitializer defaultSettingInitializer;
     private final AuditService auditService;
     private final AuthRateLimitService authRateLimitService;
+    private final VersionService versionService;
 
     @PostConstruct
     void initDummyHash() {
@@ -102,8 +104,11 @@ public class AuthenticationService {
     public ResponseEntity<Map<String, String>> loginUser(UserLoginRequest loginRequest) {
         String ip = RequestUtils.getCurrentRequest().getRemoteAddr();
         String username = loginRequest.getUsername();
-        authRateLimitService.checkLoginRateLimit(ip);
-        authRateLimitService.checkLoginRateLimitByUsername(username);
+
+        if (!versionService.isDevelopment()) {
+            authRateLimitService.checkLoginRateLimit(ip);
+            authRateLimitService.checkLoginRateLimitByUsername(username);
+        }
 
         BookLoreUserEntity user = userRepository.findByUsername(username).orElse(null);
 

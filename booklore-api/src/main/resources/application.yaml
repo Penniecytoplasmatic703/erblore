@@ -51,8 +51,8 @@ spring:
     resources:
       cache:
         cachecontrol:
-          cache-public:
-          max-age: 300
+          cache-public: true
+          max-age: 300s
         use-last-modified: true
   data:
     web:

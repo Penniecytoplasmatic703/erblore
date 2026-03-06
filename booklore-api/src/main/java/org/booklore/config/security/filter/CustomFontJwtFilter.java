@@ -22,8 +22,9 @@ public class CustomFontJwtFilter extends AbstractQueryParameterJwtFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
+//        String path = request.getRequestURI();
         // Only filter requests to custom font file endpoints (e.g., /api/v1/custom-fonts/123/file)
-        return !(path.startsWith("/api/v1/custom-fonts/") && path.endsWith("/file"));
+//        return !(path.startsWith("/api/v1/custom-fonts/") && path.endsWith("/file"));
+        return true;
     }
 }

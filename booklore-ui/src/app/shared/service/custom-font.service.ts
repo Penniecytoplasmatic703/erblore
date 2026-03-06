@@ -1,6 +1,6 @@
 import {Injectable, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, tap} from 'rxjs';
+import {BehaviorSubject, firstValueFrom, Observable, tap} from 'rxjs';
 import {CustomFont} from '../model/custom-font.model';
 import {API_CONFIG} from '../../core/config/api-config';
 import {AuthService} from './auth.service';
@@ -83,14 +83,13 @@ export class CustomFontService {
 
     try {
       const absoluteFontUrl = this.getFontUrl(font.id);
-      const fontUrlWithToken = this.appendToken(absoluteFontUrl);
-
+      
       const fontFace = new FontFace(
         font.fontName,
-        `url(${fontUrlWithToken})`,
+        await firstValueFrom(this.http.get(absoluteFontUrl, { responseType: 'arraybuffer' })),
         {
           weight: 'normal',
-          style: 'normal'
+          style: 'normal',
         }
       );
 

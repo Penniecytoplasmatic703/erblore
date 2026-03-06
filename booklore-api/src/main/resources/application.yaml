@@ -46,14 +46,6 @@ spring:
       request-timeout: 600000
   application:
     name: booklore-api
-
-  web:
-    resources:
-      cache:
-        cachecontrol:
-          cache-public: true
-          max-age: 300s
-        use-last-modified: true
   data:
     web:
       pageable:

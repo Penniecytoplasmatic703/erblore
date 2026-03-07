@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {Observable, throwError} from 'rxjs';
+import {Observable, throwError, from} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {catchError, tap} from 'rxjs/operators';
 import {AdditionalFile, AdditionalFileType, Book, DetachBookFileResponse, DuplicateDetectionRequest, DuplicateGroup} from '../model/book.model';
@@ -7,6 +7,7 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from 'primeng/api';
 import {FileDownloadService} from '../../../shared/service/file-download.service';
 import {BookStateService} from './book-state.service';
+import { SimpleCacheService } from '../../../shared/service/simple-cache.service';
 import {TranslocoService} from '@jsverse/transloco';
 
 @Injectable({
@@ -20,6 +21,7 @@ export class BookFileService {
   private messageService = inject(MessageService);
   private fileDownloadService = inject(FileDownloadService);
   private bookStateService = inject(BookStateService);
+  private simpleCacheService = inject(SimpleCacheService);
   private readonly t = inject(TranslocoService);
 
   getFileContent(bookId: number, bookType?: string): Observable<Blob> {
@@ -27,7 +29,7 @@ export class BookFileService {
     if (bookType) {
       url += `?bookType=${bookType}`;
     }
-    return this.http.get<Blob>(url, {responseType: 'blob' as 'json'});
+    return from(this.simpleCacheService.getCache(url));
   }
 
   downloadFile(book: Book): void {

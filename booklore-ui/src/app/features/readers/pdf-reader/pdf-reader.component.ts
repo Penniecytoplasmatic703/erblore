@@ -10,6 +10,7 @@ import {UserService} from '../../settings/user-management/user.service';
 import {AuthService} from '../../../shared/service/auth.service';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {PdfAnnotationService} from '../../../shared/service/pdf-annotation.service';
+import {SimpleCacheService} from "../../../shared/service/simple-cache.service";
 
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {MessageService} from 'primeng/api';
@@ -62,6 +63,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private pdfViewerService = inject(NgxExtendedPdfViewerService);
   private pdfAnnotationService = inject(PdfAnnotationService);
+  private simpleCacheService = inject(SimpleCacheService);
   private readonly t = inject(TranslocoService);
 
   ngOnInit(): void {
@@ -89,7 +91,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           ]).pipe(map(([bookSetting, myself]) => ({book, bookSetting, myself})));
         })
       ).subscribe({
-        next: ({book, bookSetting, myself}) => {
+        next: async ({book, bookSetting, myself}) => {
           const pdfMeta = book;
           const pdfPrefs = bookSetting;
 
@@ -105,10 +107,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           }
           this.canPrint = myself.permissions.canDownload || myself.permissions.admin;
           this.page = pdfMeta.pdfProgress?.page || 1;
-          this.bookData = this.altBookType
-            ? `${API_CONFIG.BASE_URL}/api/v1/books/${this.bookId}/content?bookType=${this.altBookType}`
-            : `${API_CONFIG.BASE_URL}/api/v1/books/${this.bookId}/content`;
-          const token = this.authService.getOidcAccessToken() || this.authService.getInternalAccessToken();
+          this.bookData = URL.createObjectURL(await this.getBookData(this.bookId.toString(), this.altBookType));
+          const token = this.authService.getInternalAccessToken();
           this.authorization = token ? `Bearer ${token}` : '';
           this.isLoading = false;
         },
@@ -193,6 +193,14 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       this.readingSessionService.endSession(this.page.toString(), percentage);
     }
     this.location.back();
+  }
+
+  private async getBookData(bookId: string, fileType: string | undefined): Promise<Blob> {
+    const uri = fileType ? `${API_CONFIG.BASE_URL}/api/v1/books/${bookId}/content?bookType=${fileType}`
+                          : `${API_CONFIG.BASE_URL}/api/v1/books/${bookId}/content`;
+    const data = await this.simpleCacheService.getCache(uri);
+    if (!data) throw new Error("WTF! Cannot fetch pdf");
+    return data;
   }
 
   private loadAnnotations(): void {

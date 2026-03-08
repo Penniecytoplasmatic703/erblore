@@ -11,6 +11,7 @@ import {AuthService} from '../../../shared/service/auth.service';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {PdfAnnotationService} from '../../../shared/service/pdf-annotation.service';
 import {SimpleCacheService} from "../../../shared/service/simple-cache.service";
+import {LocalSettingsService} from "../../../shared/service/local-settings.service";
 
 import {ProgressSpinner} from 'primeng/progressspinner';
 import {MessageService} from 'primeng/api';
@@ -64,6 +65,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private pdfViewerService = inject(NgxExtendedPdfViewerService);
   private pdfAnnotationService = inject(PdfAnnotationService);
   private simpleCacheService = inject(SimpleCacheService);
+  private localSettingsService = inject(LocalSettingsService);
   private readonly t = inject(TranslocoService);
 
   ngOnInit(): void {
@@ -107,7 +109,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           }
           this.canPrint = myself.permissions.canDownload || myself.permissions.admin;
           this.page = pdfMeta.pdfProgress?.page || 1;
-          this.bookData = URL.createObjectURL(await this.getBookData(this.bookId.toString(), this.altBookType));
+          const bookData = await this.getBookData(this.bookId.toString(), this.altBookType)
+          this.bookData = typeof bookData === 'string' ? bookData : URL.createObjectURL(bookData);
           const token = this.authService.getInternalAccessToken();
           this.authorization = token ? `Bearer ${token}` : '';
           this.isLoading = false;
@@ -195,9 +198,11 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.location.back();
   }
 
-  private async getBookData(bookId: string, fileType: string | undefined): Promise<Blob> {
+  private async getBookData(bookId: string, fileType: string | undefined): Promise<Blob | string> {
     const uri = fileType ? `${API_CONFIG.BASE_URL}/api/v1/books/${bookId}/content?bookType=${fileType}`
                           : `${API_CONFIG.BASE_URL}/api/v1/books/${bookId}/content`;
+    if (!this.localSettingsService.get().simpleCacheEnabled)
+      return uri;
     const data = await this.simpleCacheService.getCache(uri);
     if (!data) throw new Error("WTF! Cannot fetch pdf");
     return data;

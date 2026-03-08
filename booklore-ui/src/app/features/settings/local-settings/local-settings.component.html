@@ -1,0 +1,125 @@
+<ng-container *transloco="let t; prefix: 'settingsNaming'">
+  <div class="local-settings-container">
+    <div class="settings-header">
+      <h2 class="settings-title">
+        <i class="pi pi-home"></i>
+        Local Settings
+      </h2>
+      <p class="settings-description">
+        Browser level settings that only affect the current device. These settings are stored in the browser's local
+        storage and will not be synced across devices.
+      </p>
+    </div>
+
+    <div class="settings-card">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="pi pi-database"></i>
+          IndexedDB Cache Settings
+        </h3>
+        <p class="section-description">
+          Configure local caching using IndexedDB to improve performance and reduce server requests.
+        </p>
+      </div>
+
+      <div class="settings-content">
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Enable IndexedDB Caching</label>
+            <span class="setting-description">Store data locally in your browser for faster access</span>
+          </div>
+          <div class="setting-control">
+            <p-checkbox [(ngModel)]="settings.simpleCacheEnabled" [binary]="true" (onChange)="onSettingChange()">
+            </p-checkbox>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Maximum Entries</label>
+            <span class="setting-description">Maximum number of items to cache</span>
+          </div>
+          <div class="setting-control">
+            <p-inputNumber [(ngModel)]="settings.simpleCacheMaxEntries" [min]="100" [max]="10000" [step]="100"
+              [showButtons]="true" [disabled]="!settings.simpleCacheEnabled" (onBlur)="onSettingChange()" fluid>
+            </p-inputNumber>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Maximum Size (MB)</label>
+            <span class="setting-description">Maximum storage size in megabytes</span>
+          </div>
+          <div class="setting-control">
+            <p-inputNumber [(ngModel)]="settings.simpleCacheMaxSizeMB" [min]="10" [max]="1000" [step]="10"
+              [showButtons]="true" [disabled]="!settings.simpleCacheEnabled" (onBlur)="onSettingChange()" fluid>
+            </p-inputNumber>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">TTL (hours)</label>
+            <span class="setting-description">How long cached entries remain valid before expiring</span>
+          </div>
+          <div class="setting-control">
+            <p-inputNumber [(ngModel)]="settings.simpleCacheTtlHours" [min]="1" [max]="168" [step]="1"
+              [showButtons]="true" [disabled]="!settings.simpleCacheEnabled" (onBlur)="onSettingChange()" fluid>
+            </p-inputNumber>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">Cleanup Interval (minutes)</label>
+            <span class="setting-description">How often automatic cleanup runs to remove expired or excess
+              entries</span>
+          </div>
+          <div class="setting-control">
+            <p-inputNumber [(ngModel)]="settings.simpleCacheCleanupIntervalMinutes" [min]="1" [max]="1440" [step]="1"
+              [showButtons]="true" [disabled]="!settings.simpleCacheEnabled" (onBlur)="onSettingChange()" fluid>
+            </p-inputNumber>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">IndexedDB Usage (MB)</label>
+            <span class="setting-description">Current size occupied by IndexedDB cache</span>
+          </div>
+          <div class="setting-control action-buttons">
+            <span class="setting-value">{{ indexedDbUsageMb | number: '1.2-2' }} MB</span>
+            <p-button type="button" label="Refresh" icon="pi pi-refresh" severity="secondary" [outlined]="true"
+              [disabled]="isLoadingIndexedDbUsage" [loading]="isLoadingIndexedDbUsage" (onClick)="loadIndexedDbUsage()">
+            </p-button>
+          </div>
+        </div>
+
+        <div class="setting-item action-item">
+          <div class="setting-info">
+            <label class="setting-label">Run Cleanup</label>
+            <span class="setting-description">Manually run cache cleanup for timed out and excess entries</span>
+          </div>
+          <div class="setting-control action-buttons">
+            <p-button type="button" label="Run Cleanup" icon="pi pi-filter-slash" severity="secondary" [outlined]="true"
+              [disabled]="isRunningManualCleanup" [loading]="isRunningManualCleanup" (onClick)="runManualCleanup()">
+            </p-button>
+          </div>
+        </div>
+
+        <div class="setting-item action-item">
+          <div class="setting-info">
+            <label class="setting-label">Clear Cache</label>
+            <span class="setting-description">Remove all data stored in IndexedDB</span>
+          </div>
+          <div class="setting-control">
+            <p-button type="button" label="Clear IndexedDB" icon="pi pi-trash" severity="danger" [outlined]="true"
+              [disabled]="isClearingSimpleCache" [loading]="isClearingSimpleCache" (onClick)="clearSimpleCache()">
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

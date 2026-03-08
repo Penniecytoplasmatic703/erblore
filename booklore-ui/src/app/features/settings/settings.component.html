@@ -10,6 +10,9 @@
             <p-tab [value]="SettingsTab.ViewPreferences">
               <i class="pi pi-desktop"></i> {{ t('view') }}
             </p-tab>
+            <p-tab [value]="SettingsTab.LocalSettings">
+              <i class="pi pi-home"></i> Local
+            </p-tab>
             @if (userState.user.permissions.admin || userState.user.permissions.canManageMetadataConfig) {
               <p-tab [value]="SettingsTab.MetadataSettings">
                 <i class="pi pi-sliders-h"></i> {{ t('metadata1') }}
@@ -67,6 +70,11 @@
             <p-tabpanel [value]="SettingsTab.ViewPreferences">
               <ng-template #content>
                 <app-view-preferences-parent></app-view-preferences-parent>
+              </ng-template>
+            </p-tabpanel>
+            <p-tabpanel [value]="SettingsTab.LocalSettings">
+              <ng-template #content>
+                <app-local-settings></app-local-settings>
               </ng-template>
             </p-tabpanel>
             @if (userState.user.permissions.admin || userState.user.permissions.canManageMetadataConfig) {

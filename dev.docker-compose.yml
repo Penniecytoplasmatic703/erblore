@@ -17,7 +17,7 @@ services:
     depends_on:
       - backend_db
     volumes:
-      - './booklore-api:/booklore-api'
+      - "./booklore-api:/booklore-api"
       - /booklore-api/build
       - /booklore-api/.gradle
       - ./shared/data:/app/data
@@ -38,21 +38,30 @@ services:
     ports:
       - "${DB_PORT:-3366}:3306"
     healthcheck:
-      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-pbooklore" ]
+      test:
+        [
+          "CMD",
+          "mariadb-admin",
+          "ping",
+          "-h",
+          "localhost",
+          "-uroot",
+          "-pbooklore",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   ui:
     image: node:22-alpine
-    command: sh -c "cd /angular-app && npm install -g @angular/cli --force && npm install --force && ng serve --host 0.0.0.0"
+    command: sh -c "cd /angular-app && npm install -g @angular/cli --force && npm install --force && ng serve --host 0.0.0.0 --poll 2000"
     environment:
       - NODE_ENV=development
     stdin_open: true
     tty: true
     restart: unless-stopped
     volumes:
-      - './booklore-ui:/angular-app'
+      - "./booklore-ui:/angular-app"
 
         # you can have node_modules in a volume. however, if you enable this, expect trouble in some IDEs, as the deps are not available anymore
         # - node_modules:/angular-app/node_modules
@@ -60,7 +69,7 @@ services:
         # we ignore package-lock otherwise will throw
         # An unhandled exception occurred: Cannot find module @rollup/rollup-linux-x64-musl. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828).
         # Please try `npm i` again after removing both package-lock.json and node_modules directory.
-      - '/dev/null:/angular-app/package-lock.json'
+      - "/dev/null:/angular-app/package-lock.json"
     ports:
       - "${FRONTEND_PORT:-4200}:4200"
 

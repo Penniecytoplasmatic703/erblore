@@ -8,6 +8,7 @@ import {MessageService} from 'primeng/api';
 import {FileDownloadService} from '../../../shared/service/file-download.service';
 import {BookStateService} from './book-state.service';
 import { SimpleCacheService } from '../../../shared/service/simple-cache.service';
+import { LocalSettingsService } from '../../../shared/service/local-settings.service';
 import {TranslocoService} from '@jsverse/transloco';
 
 @Injectable({
@@ -22,6 +23,7 @@ export class BookFileService {
   private fileDownloadService = inject(FileDownloadService);
   private bookStateService = inject(BookStateService);
   private simpleCacheService = inject(SimpleCacheService);
+  private localSettingsService = inject(LocalSettingsService);
   private readonly t = inject(TranslocoService);
 
   getFileContent(bookId: number, bookType?: string): Observable<Blob> {
@@ -29,7 +31,9 @@ export class BookFileService {
     if (bookType) {
       url += `?bookType=${bookType}`;
     }
-    return from(this.simpleCacheService.getCache(url));
+    if (this.localSettingsService.get().simpleCacheEnabled)
+      return from(this.simpleCacheService.getCache(url));
+    return this.http.get<Blob>(url, {responseType: 'blob' as 'json'});
   }
 
   downloadFile(book: Book): void {

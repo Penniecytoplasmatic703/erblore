@@ -1,30 +1,35 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {NgxExtendedPdfViewerModule, NgxExtendedPdfViewerService, pdfDefaultOptions, ZoomType} from 'ngx-extended-pdf-viewer';
-import {PageTitleService} from "../../../shared/service/page-title.service";
-import {BookService} from '../../book/service/book.service';
-import {forkJoin, Subject, Subscription} from 'rxjs';
-import {debounceTime, map, switchMap} from 'rxjs/operators';
-import {BookSetting} from '../../book/model/book.model';
-import {UserService} from '../../settings/user-management/user.service';
-import {AuthService} from '../../../shared/service/auth.service';
-import {API_CONFIG} from '../../../core/config/api-config';
-import {PdfAnnotationService} from '../../../shared/service/pdf-annotation.service';
-import {SimpleCacheService} from "../../../shared/service/simple-cache.service";
-import {LocalSettingsService} from "../../../shared/service/local-settings.service";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import {
+  NgxExtendedPdfViewerModule,
+  NgxExtendedPdfViewerService,
+  pdfDefaultOptions,
+  ZoomType,
+} from "ngx-extended-pdf-viewer";
+import { PageTitleService } from "../../../shared/service/page-title.service";
+import { BookService } from "../../book/service/book.service";
+import { forkJoin, Subject, Subscription } from "rxjs";
+import { debounceTime, map, switchMap } from "rxjs/operators";
+import { BookSetting } from "../../book/model/book.model";
+import { UserService } from "../../settings/user-management/user.service";
+import { AuthService } from "../../../shared/service/auth.service";
+import { API_CONFIG } from "../../../core/config/api-config";
+import { PdfAnnotationService } from "../../../shared/service/pdf-annotation.service";
+import { SimpleCacheService } from "../../../shared/service/simple-cache.service";
+import { LocalSettingsService } from "../../../shared/service/local-settings.service";
 
-import {ProgressSpinner} from 'primeng/progressspinner';
-import {MessageService} from 'primeng/api';
-import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
-import {ReadingSessionService} from '../../../shared/service/reading-session.service';
-import {Location} from '@angular/common';
+import { ProgressSpinner } from "primeng/progressspinner";
+import { MessageService } from "primeng/api";
+import { TranslocoService, TranslocoPipe } from "@jsverse/transloco";
+import { ReadingSessionService } from "../../../shared/service/reading-session.service";
+import { Location } from "@angular/common";
 
 @Component({
-  selector: 'app-pdf-reader',
+  selector: "app-pdf-reader",
   standalone: true,
   imports: [NgxExtendedPdfViewerModule, ProgressSpinner, TranslocoPipe],
-  templateUrl: './pdf-reader.component.html',
-  styleUrl: './pdf-reader.component.scss',
+  templateUrl: "./pdf-reader.component.html",
+  styleUrl: "./pdf-reader.component.scss",
 })
 export class PdfReaderComponent implements OnInit, OnDestroy {
   constructor() {
@@ -39,10 +44,10 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   canPrint = false;
 
   rotation: 0 | 90 | 180 | 270 = 0;
-  authorization = '';
+  authorization = "";
 
   page!: number;
-  spread!: 'off' | 'even' | 'odd';
+  spread!: "off" | "even" | "odd";
   zoom!: ZoomType;
 
   bookData!: string;
@@ -75,51 +80,78 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
     this.route.paramMap.subscribe((params) => {
       this.isLoading = true;
-      this.bookId = +params.get('bookId')!;
-      this.altBookType = this.route.snapshot.queryParamMap.get('bookType') ?? undefined;
+      this.bookId = +params.get("bookId")!;
+      this.altBookType =
+        this.route.snapshot.queryParamMap.get("bookType") ?? undefined;
 
-      this.bookService.getBookByIdFromAPI(this.bookId, false).pipe(
-        switchMap((book) => {
-          if (this.altBookType) {
-            const altFile = book.alternativeFormats?.find(f => f.bookType === this.altBookType);
-            this.bookFileId = altFile?.id;
-          } else {
-            this.bookFileId = book.primaryFile?.id;
-          }
+      this.bookService
+        .getBookByIdFromAPI(this.bookId, false)
+        .pipe(
+          switchMap((book) => {
+            if (this.altBookType) {
+              const altFile = book.alternativeFormats?.find(
+                (f) => f.bookType === this.altBookType,
+              );
+              this.bookFileId = altFile?.id;
+            } else {
+              this.bookFileId = book.primaryFile?.id;
+            }
 
-          return forkJoin([
-            this.bookService.getBookSetting(this.bookId, this.bookFileId!),
-            this.userService.getMyself()
-          ]).pipe(map(([bookSetting, myself]) => ({book, bookSetting, myself})));
-        })
-      ).subscribe({
-        next: async ({book, bookSetting, myself}) => {
-          const pdfMeta = book;
-          const pdfPrefs = bookSetting;
+            return forkJoin([
+              this.bookService.getBookSetting(this.bookId, this.bookFileId!),
+              this.userService.getMyself(),
+            ]).pipe(
+              map(([bookSetting, myself]) => ({ book, bookSetting, myself })),
+            );
+          }),
+        )
+        .subscribe({
+          next: async ({ book, bookSetting, myself }) => {
+            const pdfMeta = book;
+            const pdfPrefs = bookSetting;
 
-          this.pageTitle.setBookPageTitle(pdfMeta);
+            this.pageTitle.setBookPageTitle(pdfMeta);
 
-          const globalOrIndividual = myself.userSettings.perBookSetting.pdf;
-          if (globalOrIndividual === 'Global') {
-            this.zoom = myself.userSettings.pdfReaderSetting.pageZoom || 'page-fit';
-            this.spread = myself.userSettings.pdfReaderSetting.pageSpread || 'odd';
-          } else {
-            this.zoom = pdfPrefs.pdfSettings?.zoom || myself.userSettings.pdfReaderSetting.pageZoom || 'page-fit';
-            this.spread = pdfPrefs.pdfSettings?.spread || myself.userSettings.pdfReaderSetting.pageSpread || 'odd';
-          }
-          this.canPrint = myself.permissions.canDownload || myself.permissions.admin;
-          this.page = pdfMeta.pdfProgress?.page || 1;
-          const bookData = await this.getBookData(this.bookId.toString(), this.altBookType)
-          this.bookData = typeof bookData === 'string' ? bookData : URL.createObjectURL(bookData);
-          const token = this.authService.getInternalAccessToken();
-          this.authorization = token ? `Bearer ${token}` : '';
-          this.isLoading = false;
-        },
-        error: () => {
-          this.messageService.add({severity: 'error', summary: this.t.translate('common.error'), detail: this.t.translate('readerPdf.toast.failedToLoadBook')});
-          this.isLoading = false;
-        }
-      });
+            const globalOrIndividual = myself.userSettings.perBookSetting.pdf;
+            if (globalOrIndividual === "Global") {
+              this.zoom =
+                myself.userSettings.pdfReaderSetting.pageZoom || "page-fit";
+              this.spread =
+                myself.userSettings.pdfReaderSetting.pageSpread || "odd";
+            } else {
+              this.zoom =
+                pdfPrefs.pdfSettings?.zoom ||
+                myself.userSettings.pdfReaderSetting.pageZoom ||
+                "page-fit";
+              this.spread =
+                pdfPrefs.pdfSettings?.spread ||
+                myself.userSettings.pdfReaderSetting.pageSpread ||
+                "odd";
+            }
+            this.canPrint =
+              myself.permissions.canDownload || myself.permissions.admin;
+            this.page = pdfMeta.pdfProgress?.page || 1;
+            const bookData = await this.getBookData(
+              this.bookId.toString(),
+              this.altBookType,
+            );
+            this.bookData =
+              typeof bookData === "string"
+                ? bookData
+                : URL.createObjectURL(bookData);
+            const token = this.authService.getInternalAccessToken();
+            this.authorization = token ? `Bearer ${token}` : "";
+            this.isLoading = false;
+          },
+          error: () => {
+            this.messageService.add({
+              severity: "error",
+              summary: this.t.translate("common.error"),
+              detail: this.t.translate("readerPdf.toast.failedToLoadBook"),
+            });
+            this.isLoading = false;
+          },
+        });
     });
   }
 
@@ -127,8 +159,14 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     if (page !== this.page) {
       this.page = page;
       this.updateProgress();
-      const percentage = this.totalPages > 0 ? Math.round((this.page / this.totalPages) * 1000) / 10 : 0;
-      this.readingSessionService.updateProgress(this.page.toString(), percentage);
+      const percentage =
+        this.totalPages > 0
+          ? Math.round((this.page / this.totalPages) * 1000) / 10
+          : 0;
+      this.readingSessionService.updateProgress(
+        this.page.toString(),
+        percentage,
+      );
     }
   }
 
@@ -139,7 +177,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSpreadChange(spread: 'off' | 'even' | 'odd'): void {
+  onSpreadChange(spread: "off" | "even" | "odd"): void {
     if (spread !== this.spread) {
       this.spread = spread;
       this.updateViewerSetting();
@@ -151,20 +189,33 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       pdfSettings: {
         spread: this.spread,
         zoom: this.zoom,
-      }
-    }
+      },
+    };
     this.bookService.updateViewerSetting(bookSetting, this.bookId).subscribe();
   }
 
   updateProgress(): void {
-    const percentage = this.totalPages > 0 ? Math.round((this.page / this.totalPages) * 1000) / 10 : 0;
-    this.bookService.savePdfProgress(this.bookId, this.page, percentage, this.bookFileId).subscribe();
+    const percentage =
+      this.totalPages > 0
+        ? Math.round((this.page / this.totalPages) * 1000) / 10
+        : 0;
+    this.bookService
+      .savePdfProgress(this.bookId, this.page, percentage, this.bookFileId)
+      .subscribe();
   }
 
   onPdfPagesLoaded(event: { pagesCount: number }): void {
     this.totalPages = event.pagesCount;
-    const percentage = this.totalPages > 0 ? Math.round((this.page / this.totalPages) * 1000) / 10 : 0;
-    this.readingSessionService.startSession(this.bookId, "PDF", this.page.toString(), percentage);
+    const percentage =
+      this.totalPages > 0
+        ? Math.round((this.page / this.totalPages) * 1000) / 10
+        : 0;
+    this.readingSessionService.startSession(
+      this.bookId,
+      "PDF",
+      this.page.toString(),
+      percentage,
+    );
     this.readingSessionService.updateProgress(this.page.toString(), percentage);
     this.loadAnnotations();
   }
@@ -177,7 +228,10 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.readingSessionService.isSessionActive()) {
-      const percentage = this.totalPages > 0 ? Math.round((this.page / this.totalPages) * 1000) / 10 : 0;
+      const percentage =
+        this.totalPages > 0
+          ? Math.round((this.page / this.totalPages) * 1000) / 10
+          : 0;
       this.readingSessionService.endSession(this.page.toString(), percentage);
     }
 
@@ -192,17 +246,23 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
   closeReader = (): void => {
     if (this.readingSessionService.isSessionActive()) {
-      const percentage = this.totalPages > 0 ? Math.round((this.page / this.totalPages) * 1000) / 10 : 0;
+      const percentage =
+        this.totalPages > 0
+          ? Math.round((this.page / this.totalPages) * 1000) / 10
+          : 0;
       this.readingSessionService.endSession(this.page.toString(), percentage);
     }
     this.location.back();
-  }
+  };
 
-  private async getBookData(bookId: string, fileType: string | undefined): Promise<Blob | string> {
-    const uri = fileType ? `${API_CONFIG.BASE_URL}/api/v1/books/${bookId}/content?bookType=${fileType}`
-                          : `${API_CONFIG.BASE_URL}/api/v1/books/${bookId}/content`;
-    if (!this.localSettingsService.get().simpleCacheEnabled)
-      return uri;
+  private async getBookData(
+    bookId: string,
+    fileType: string | undefined,
+  ): Promise<Blob | string> {
+    const uri = fileType
+      ? `${API_CONFIG.BASE_URL}/api/v1/books/${bookId}/content?bookType=${fileType}`
+      : `${API_CONFIG.BASE_URL}/api/v1/books/${bookId}/content`;
+    if (!this.localSettingsService.get().simpleCacheEnabled) return uri;
     const data = await this.simpleCacheService.getCache(uri);
     if (!data) throw new Error("WTF! Cannot fetch pdf");
     return data;
@@ -221,7 +281,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.annotationsLoaded = true;
-      }
+      },
     });
   }
 
@@ -231,7 +291,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
     const serialized = this.pdfViewerService.getSerializedAnnotations();
     if (serialized && serialized.length > 0) {
-      const cleaned = serialized.map(({id, ...rest}: any) => rest);
+      const cleaned = serialized.map(({ id, ...rest }: any) => rest);
       const data = JSON.stringify(cleaned);
       this.pdfAnnotationService.saveAnnotations(this.bookId, data).subscribe();
     }

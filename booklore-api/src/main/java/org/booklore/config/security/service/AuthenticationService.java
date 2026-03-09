@@ -61,6 +61,7 @@ public class AuthenticationService {
             DefaultSettingInitializer defaultSettingInitializer,
             AuditService auditService,
             AuthRateLimitService authRateLimitService,
+            VersionService versionService,
             @Lazy AppSettingService appSettingService
     ) {
         this.appProperties = appProperties;
@@ -72,6 +73,7 @@ public class AuthenticationService {
         this.defaultSettingInitializer = defaultSettingInitializer;
         this.auditService = auditService;
         this.authRateLimitService = authRateLimitService;
+        this.versionService = versionService;
         this.appSettingService = appSettingService;
     }
 

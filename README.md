@@ -21,13 +21,11 @@ Phase 2 — Integrate AI: smart recommendations, semantic search, and book analy
 </p>
 
 <p align="center">
-  <a href="https://github.com/erblore/erblore/releases"><img src="https://img.shields.io/github/v/release/adityachandelgit/Erblore?color=818CF8&style=flat-square&logo=github" alt="Release" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/adityachandelgit/Erblore?color=fab005&style=flat-square" alt="License" /></a>
+  <a href="https://github.com/erblore/erblore/releases"><img src="https://img.shields.io/github/v/release/erblore/erblore?color=818CF8&style=flat-square&logo=github" alt="Release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/erblore/erblore?color=fab005&style=flat-square" alt="License" /></a>
   <a href="https://hub.docker.com/r/erblore/erblore"><img src="https://img.shields.io/docker/pulls/erblore/erblore?color=2496ED&style=flat-square&logo=docker&logoColor=white" alt="Docker Pulls" /></a>
-  <a href="https://github.com/erblore/erblore/stargazers"><img src="https://img.shields.io/github/stars/adityachandelgit/Erblore?style=flat-square&color=ffd43b" alt="Stars" /></a>
-  <a href="https://discord.gg/Ee5hd458Uz"><img src="https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord" /></a>
-  <a href="https://opencollective.com/erblore"><img src="https://img.shields.io/opencollective/all/erblore?style=flat-square&color=7FADF2&logo=opencollective" alt="Open Collective" /></a>
-  <a href="https://hosted.weblate.org/engage/erblore/"><img src="https://img.shields.io/weblate/progress/erblore?style=flat-square&logo=weblate&logoColor=white&color=2ECCAA" alt="Translate" /></a>
+  <a href="https://github.com/erblore/erblore/stargazers"><img src="https://img.shields.io/github/stars/erblore/erblore?style=flat-square&color=ffd43b" alt="Stars" /></a>
+  <a href="https://discord.gg/h8duKgT2"><img src="https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord" /></a>
 </p>
 
 <p align="center">
@@ -241,7 +239,7 @@ Erblore is free, open source, and built with care. Here's how you can give back:
 
 ## 👥 Contributors
 
-[![Contributors](https://contrib.rocks/image?repo=adityachandelgit/Erblore)](https://github.com/erblore/erblore/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=erblore/erblore)](https://github.com/erblore/erblore/graphs/contributors)
 
 Every contribution matters. [See how you can help →](CONTRIBUTING.md)
 

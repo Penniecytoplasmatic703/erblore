@@ -15,9 +15,9 @@ Organize, read, annotate, sync across devices, and share, all without relying on
 
 ## 🗺️ Roadmap
 <p align="center">
-Erblore is a fork of the now-unmaintained BookLore project, carrying its legacy forward.
-**Phase 1** — Actively maintain and stabilize all existing features
-**Phase 2** — Integrate AI: smart recommendations, semantic search, and book analysis
+Erblore is a fork of the now-unmaintained BookLore project, carrying its legacy forward.<br/>
+Phase 1 — Actively maintain and stabilize all existing features<br/>
+Phase 2 — Integrate AI: smart recommendations, semantic search, and book analysis<br/>
 </p>
 
 <p align="center">
@@ -31,11 +31,8 @@ Erblore is a fork of the now-unmaintained BookLore project, carrying its legacy 
 </p>
 
 <p align="center">
-  <a href="https://erblore.org/">🌐 Website</a> ·
-  <a href="https://erblore.org/docs/getting-started">📖 Docs</a> ·
-  <a href="#-live-demo">🎮 Demo</a> ·
   <a href="#-quick-start">🚀 Quick Start</a> ·
-  <a href="https://discord.gg/Ee5hd458Uz">💬 Discord</a>
+  <a href="https://discord.gg/h8duKgT2">💬 Discord</a>
 </p>
 
 <p align="center">
@@ -177,21 +174,6 @@ If your book files live on network storage, set `DISK_TYPE=NETWORK` in your `.en
 
 ---
 
-## 🎮 Live Demo
-
-See Erblore in action before deploying your own instance.
-
-| | |
-|:---|:---|
-| 🌐 **URL** | **[demo.erblore.org](https://demo.erblore.org)** |
-| 👤 **Username** | `erblore` |
-| 🔑 **Password** | `9HC20PGGfitvWaZ1` |
-
-> [!NOTE]
-> This is a standard user account. Admin features like library creation, user management, and system settings are only available on your own instance.
-
----
-
 ## 📥 BookDrop: Zero-Effort Import
 
 Drop book files into a folder. Erblore picks them up, pulls metadata, and queues everything for your review.
@@ -243,25 +225,7 @@ Erblore is free, open source, and built with care. Here's how you can give back:
 | 💰 **Sponsor development** | [Open Collective](https://opencollective.com/erblore) funds hosting, testing, and new features |
 | 📢 **Tell someone** | Share Erblore with a friend, a subreddit, or your local book club |
 
-> [!IMPORTANT]
-> We're raising funds for a Kobo device to build and test native Kobo sync support.
-> [Contribute to the Kobo Bounty →](https://opencollective.com/erblore/projects/kobo-device-for-testing)
-
 ---
-
-## 🌍 Translations
-
-Erblore is used by readers around the world. Help make it accessible in your language on [Weblate](https://hosted.weblate.org/engage/erblore/).
-
-<a href="https://hosted.weblate.org/engage/erblore/">
-  <img src="https://hosted.weblate.org/widget/erblore/multi-auto.svg?v=1" alt="Translation status" />
-</a>
-
----
-
-## 📊 Project Analytics
-
-![Repository Activity](https://repobeats.axiom.co/api/embed/44a04220bfc5136e7064181feb07d5bf0e59e27e.svg)
 
 ### ⭐ Star History
 
@@ -280,48 +244,6 @@ Erblore is used by readers around the world. Help make it accessible in your lan
 [![Contributors](https://contrib.rocks/image?repo=adityachandelgit/Erblore)](https://github.com/erblore/erblore/graphs/contributors)
 
 Every contribution matters. [See how you can help →](CONTRIBUTING.md)
-
----
-
-<div align="center">
-
-## 🌟 Sponsors & Partners
-
-<table>
-<tr>
-<td align="center" width="33%">
-
-<a href="https://www.pikapods.com/pods?run=erblore">
-  <img src="https://www.pikapods.com/static/run-button.svg" alt="Run on PikaPods" height="40" />
-</a>
-
-**PikaPods**
-
-</td>
-<td align="center" width="33%">
-
-<a href="https://docs.elfhosted.com/app/erblore">
-  <img src="https://docs.elfhosted.com/images/logo.svg" alt="ElfHosted" height="40" />
-</a>
-
-**ElfHosted**
-
-</td>
-<td align="center" width="34%">
-
-<a href="https://jb.gg/OpenSource">
-  <img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg" alt="JetBrains" height="40" />
-</a>
-
-**JetBrains**
-
-</td>
-</tr>
-</table>
-
-*Want your logo here? [Become a sponsor →](https://opencollective.com/erblore)*
-
-</div>
 
 ---
 

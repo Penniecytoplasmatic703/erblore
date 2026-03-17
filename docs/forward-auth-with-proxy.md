@@ -1,14 +1,14 @@
 # Forward Auth with Reverse Proxy
 
-BookLore supports **Forward Auth**, allowing you to specify when a user is logged in using a reverse proxy and existing SSO provider.
+Erblore supports **Forward Auth**, allowing you to specify when a user is logged in using a reverse proxy and existing SSO provider.
 
 ## ⚠️ Security
 
-** Important**: Enabling forward auth means BookLore will **fully trust headers sent by the reverse proxy**. Never expose BookLore directly to the internet when using forward auth - always route through your authenticated proxy, otherwise outsiders can attempt to impersonate any username they know about.
+** Important**: Enabling forward auth means Erblore will **fully trust headers sent by the reverse proxy**. Never expose Erblore directly to the internet when using forward auth - always route through your authenticated proxy, otherwise outsiders can attempt to impersonate any username they know about.
 
 ## Configuration
 
-Provide BookLore with the following environment variables:
+Provide Erblore with the following environment variables:
 
 ```bash
 # Allows Forward Auth
@@ -36,8 +36,8 @@ REMOTE_AUTH_GROUPS_DELIMITER=\\s+          # Regex pattern for splitting groups.
 
 ```yaml
 services:
-  booklore:
-    image: ghcr.io/adityachandelgit/booklore-app:latest
+  erblore:
+    image: ghcr.io/erblore/erblore-app:latest
     environment:
       # Forward Auth Configuration
       - REMOTE_AUTH_ENABLED=true
@@ -53,7 +53,7 @@ services:
 
 ## Setting Up Defaults Permissions
 
-1. **Access Admin Settings**: Log in to Booklore as an admin user
+1. **Access Admin Settings**: Log in to Erblore as an admin user
 2. **Navigate to Authentication Settings**: Go to Settings → Authentication
 3. **Configure OIDC Auto-Provision** (even if not using OIDC):
    - Enable "Auto User Provisioning". You might need to enter a bogus URL to enable it temporarily.
@@ -69,6 +69,6 @@ books.example.com {
     copy_headers Remote-User Remote-Name Remote-Email Remote-Groups
   }
 
-  reverse_proxy booklore:6060
+  reverse_proxy erblore:6060
 }
 ```

